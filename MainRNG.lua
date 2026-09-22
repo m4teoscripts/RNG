@@ -399,7 +399,6 @@ function Library:CreateWindow(config)
             return LabelAPI
         end
 
-        -- NUEVO: Paragraph (Estilo Rayfield)
         function TabAPI:AddParagraph(title, content)
             local pFrame = Instance.new("Frame")
             pFrame.Size = UDim2.new(1, 0, 0, 55)
@@ -564,7 +563,6 @@ function Library:CreateWindow(config)
             end)
         end
 
-        -- NUEVO: Dropdown con Scroll
         function TabAPI:AddDropdown(text, options, defaultOption, callback)
             local currentOption = defaultOption or options[1] or ""
             local isOpenDD = false
@@ -640,7 +638,6 @@ function Library:CreateWindow(config)
             end)
         end
 
-        -- NUEVO: Keybind
         function TabAPI:AddKeybind(text, defaultKey, callback)
             local currentKey = defaultKey or Enum.KeyCode.E
             local binding = false
@@ -691,7 +688,7 @@ function Library:CreateWindow(config)
             end)
         end
 
-        -- NUEVO: ColorPicker Avanzado con Paleta Flotante, Círculo Arrastrable, Aceptar y Cancelar
+        -- COLORPICKER MODIFICADO: Horizontal (acostada), No Draggable, con Preview en cuadro chico
         function TabAPI:AddColorPicker(text, defaultColor, callback)
             local color = defaultColor or Color3.fromRGB(255, 255, 255)
             local cpBtn = Instance.new("TextButton")
@@ -719,13 +716,14 @@ function Library:CreateWindow(config)
             prevCorner.Parent = preview
 
             cpBtn.MouseButton1Click:Connect(function()
+                -- Ventana Horizontal / Acostada y No Draggable
                 local pickerGui = Instance.new("Frame")
-                pickerGui.Size = UDim2.new(0, 220, 0, 240)
-                pickerGui.Position = UDim2.new(0.5, -110, 0.5, -120)
+                pickerGui.Size = UDim2.new(0, 310, 0, 160)
+                pickerGui.Position = UDim2.new(0.5, -155, 0.5, -80)
                 pickerGui.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
                 pickerGui.BorderSizePixel = 0
                 pickerGui.Active = true
-                pickerGui.Draggable = true
+                pickerGui.Draggable = false -- NO DRAGGABLE
                 pickerGui.Parent = ScreenGui
 
                 local pickerCorner = Instance.new("UICorner")
@@ -738,17 +736,32 @@ function Library:CreateWindow(config)
                 pickerStroke.Parent = pickerGui
 
                 local titleL = Instance.new("TextLabel")
-                titleL.Size = UDim2.new(1, 0, 0, 30)
+                titleL.Size = UDim2.new(1, -15, 0, 24)
+                titleL.Position = UDim2.new(0, 10, 0, 6)
                 titleL.BackgroundTransparency = 1
-                titleL.Text = "Seleccionar Color"
+                titleL.Text = "Selector de Color"
                 titleL.TextColor3 = Color3.fromRGB(255, 255, 255)
-                titleL.TextSize = 13
+                titleL.TextSize = 12
                 titleL.Font = Enum.Font.SourceSansBold
+                titleL.TextXAlignment = Enum.TextXAlignment.Left
                 titleL.Parent = pickerGui
 
+                -- Cuadro Chico de Preview dentro de la ventana
+                local previewPicker = Instance.new("Frame")
+                previewPicker.Size = UDim2.new(0, 35, 0, 35)
+                previewPicker.Position = UDim2.new(1, -45, 0, 36)
+                previewPicker.BackgroundColor3 = color
+                previewPicker.BorderSizePixel = 0
+                previewPicker.Parent = pickerGui
+
+                local ppCorner = Instance.new("UICorner")
+                ppCorner.CornerRadius = UDim.new(0, 4)
+                ppCorner.Parent = previewPicker
+
+                -- Área de la Paleta de Colores (Horizontal)
                 local colorArea = Instance.new("Frame")
-                colorArea.Size = UDim2.new(1, -20, 0, 120)
-                colorArea.Position = UDim2.new(0, 10, 0, 35)
+                colorArea.Size = UDim2.new(0, 215, 0, 75)
+                colorArea.Position = UDim2.new(0, 10, 0, 36)
                 colorArea.BackgroundColor3 = color
                 colorArea.BorderSizePixel = 0
                 colorArea.Parent = pickerGui
@@ -758,7 +771,7 @@ function Library:CreateWindow(config)
                 caCorner.Parent = colorArea
 
                 local circle = Instance.new("Frame")
-                circle.Size = UDim2.new(0, 16, 0, 16)
+                circle.Size = UDim2.new(0, 14, 0, 14)
                 circle.AnchorPoint = Vector2.new(0.5, 0.5)
                 circle.Position = UDim2.new(0.5, 0, 0.5, 0)
                 circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -794,16 +807,18 @@ function Library:CreateWindow(config)
                         circle.Position = UDim2.new(relX, 0, relY, 0)
                         tempColor = Color3.fromHSV(relX, 1, 1 - relY)
                         colorArea.BackgroundColor3 = tempColor
+                        previewPicker.BackgroundColor3 = tempColor
                     end
                 end)
 
+                -- Botones Aceptar / Cancelar
                 local acceptBtn = Instance.new("TextButton")
-                acceptBtn.Size = UDim2.new(0.5, -15, 0, 30)
-                acceptBtn.Position = UDim2.new(0, 10, 1, -40)
+                acceptBtn.Size = UDim2.new(0.5, -15, 0, 26)
+                acceptBtn.Position = UDim2.new(0, 10, 1, -34)
                 acceptBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
                 acceptBtn.Text = "Aceptar"
                 acceptBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                acceptBtn.TextSize = 12
+                acceptBtn.TextSize = 11
                 acceptBtn.Font = Enum.Font.SourceSansBold
                 acceptBtn.Parent = pickerGui
 
@@ -812,12 +827,12 @@ function Library:CreateWindow(config)
                 acCorner.Parent = acceptBtn
 
                 local cancelBtn = Instance.new("TextButton")
-                cancelBtn.Size = UDim2.new(0.5, -15, 0, 30)
-                cancelBtn.Position = UDim2.new(0.5, 5, 1, -40)
+                cancelBtn.Size = UDim2.new(0.5, -15, 0, 26)
+                cancelBtn.Position = UDim2.new(0.5, 5, 1, -34)
                 cancelBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
                 cancelBtn.Text = "Cancelar"
                 cancelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                cancelBtn.TextSize = 12
+                cancelBtn.TextSize = 11
                 cancelBtn.Font = Enum.Font.SourceSansBold
                 cancelBtn.Parent = pickerGui
 
