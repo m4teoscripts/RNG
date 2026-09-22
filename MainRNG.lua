@@ -773,7 +773,7 @@ function Library:CreateWindow(config)
                 ppCorner.CornerRadius = UDim.new(0, 4)
                 ppCorner.Parent = previewPicker
 
-                -- Barra de espectro de colores garantizada (bloques de colores reales para que no falle en móviles)
+                -- Barra de espectro de colores
                 local colorBar = Instance.new("Frame")
                 colorBar.Size = UDim2.new(0, 200, 0, 45)
                 colorBar.Position = UDim2.new(0, 10, 0, 38)
@@ -785,7 +785,6 @@ function Library:CreateWindow(config)
                 cbCorner.CornerRadius = UDim.new(0, 4)
                 cbCorner.Parent = colorBar
 
-                -- Creamos 6 secciones de colores vibrantes para formar el arcoíris perfectamente visible
                 local colorsList = {
                     Color3.fromRGB(255, 0, 0),     -- Rojo
                     Color3.fromRGB(255, 255, 0),   -- Amarillo
@@ -809,12 +808,43 @@ function Library:CreateWindow(config)
                     strip.Parent = colorBar
                 end
 
+                -- Obtener el valor de tono (Hue) inicial del color actual
+                local initHue, _, _ = color:ToHSV()
+
+                -- Indicador visual (círculo/cursor) sobre la barra de colores
+                local pickerIndicator = Instance.new("Frame")
+                pickerIndicator.Size = UDim2.new(0, 8, 1, 6)
+                pickerIndicator.Position = UDim2.new(initHue, -4, 0, -3)
+                pickerIndicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                pickerIndicator.BorderSizePixel = 0
+                pickerIndicator.Parent = colorBar
+
+                local piCorner = Instance.new("UICorner")
+                piCorner.CornerRadius = UDim.new(1, 0)
+                piCorner.Parent = pickerIndicator
+
+                local piStroke = Instance.new("UIStroke")
+                piStroke.Thickness = 2
+                piStroke.Color = Color3.fromRGB(0, 0, 0)
+                piStroke.Parent = pickerIndicator
+
                 local tempColor = color
                 local selecting = false
+
+                local function updateColor(inputPos)
+                    local absPos = colorBar.AbsolutePosition
+                    local absSize = colorBar.AbsoluteSize
+                    local relX = math.clamp((inputPos.X - absPos.X) / absSize.X, 0, 1)
+                    
+                    pickerIndicator.Position = UDim2.new(relX, -4, 0, -3)
+                    tempColor = Color3.fromHSV(relX, 1, 1)
+                    previewPicker.BackgroundColor3 = tempColor
+                end
 
                 colorBar.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                         selecting = true
+                        updateColor(input.Position)
                     end
                 end)
 
@@ -826,13 +856,7 @@ function Library:CreateWindow(config)
 
                 UserInputService.InputChanged:Connect(function(input)
                     if selecting and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                        local pos = input.Position
-                        local absPos = colorBar.AbsolutePosition
-                        local absSize = colorBar.AbsoluteSize
-                        local relX = math.clamp((pos.X - absPos.X) / absSize.X, 0, 1)
-                        
-                        tempColor = Color3.fromHSV(relX, 1, 1)
-                        previewPicker.BackgroundColor3 = tempColor
+                        updateColor(input.Position)
                     end
                 end)
 
