@@ -94,7 +94,7 @@ function Library:CreateWindow(config)
     UIStroke.Thickness = 2
     UIStroke.Parent = MainFrame
 
-    -- Botón Flotante "UI" (Fijo, NO DRAGGABLE)
+    -- Botón Flotante "UI" (Fijo, No Draggable)
     local ToggleUiBtn = Instance.new("TextButton")
     ToggleUiBtn.Size = UDim2.new(0, 45, 0, 45)
     ToggleUiBtn.Position = UDim2.new(0, 10, 0.5, -22)
@@ -105,7 +105,7 @@ function Library:CreateWindow(config)
     ToggleUiBtn.TextSize = 14
     ToggleUiBtn.Font = Enum.Font.SourceSansBold
     ToggleUiBtn.Active = true
-    ToggleUiBtn.Draggable = false -- <-- FIJO (NO SE PUEDE MOVER)
+    ToggleUiBtn.Draggable = false
     ToggleUiBtn.Visible = not useKey
     ToggleUiBtn.Parent = ScreenGui
 
@@ -399,6 +399,42 @@ function Library:CreateWindow(config)
             return LabelAPI
         end
 
+        -- NUEVO: Paragraph (Estilo Rayfield)
+        function TabAPI:AddParagraph(title, content)
+            local pFrame = Instance.new("Frame")
+            pFrame.Size = UDim2.new(1, 0, 0, 55)
+            pFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            pFrame.BorderSizePixel = 0
+            pFrame.Parent = TabContent
+
+            local Corner = Instance.new("UICorner")
+            Corner.CornerRadius = UDim.new(0, 4)
+            Corner.Parent = pFrame
+
+            local titleLbl = Instance.new("TextLabel")
+            titleLbl.Size = UDim2.new(1, -10, 0, 20)
+            titleLbl.Position = UDim2.new(0, 8, 0, 4)
+            titleLbl.BackgroundTransparency = 1
+            titleLbl.Text = title
+            titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+            titleLbl.TextSize = 12
+            titleLbl.Font = Enum.Font.SourceSansBold
+            titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+            titleLbl.Parent = pFrame
+
+            local descLbl = Instance.new("TextLabel")
+            descLbl.Size = UDim2.new(1, -10, 0, 25)
+            descLbl.Position = UDim2.new(0, 8, 0, 24)
+            descLbl.BackgroundTransparency = 1
+            descLbl.Text = content
+            descLbl.TextColor3 = Color3.fromRGB(180, 180, 180)
+            descLbl.TextSize = 11
+            descLbl.Font = Enum.Font.SourceSans
+            descLbl.TextXAlignment = Enum.TextXAlignment.Left
+            descLbl.TextWrapped = true
+            descLbl.Parent = pFrame
+        end
+
         function TabAPI:AddButton(text, callback)
             local Btn = Instance.new("TextButton")
             Btn.Size = UDim2.new(1, 0, 0, 32)
@@ -528,6 +564,134 @@ function Library:CreateWindow(config)
             end)
         end
 
+        -- NUEVO: Dropdown con Scroll
+        function TabAPI:AddDropdown(text, options, defaultOption, callback)
+            local currentOption = defaultOption or options[1] or ""
+            local isOpenDD = false
+
+            local dropdownFrame = Instance.new("Frame")
+            dropdownFrame.Size = UDim2.new(1, 0, 0, 32)
+            dropdownFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            dropdownFrame.BorderSizePixel = 0
+            dropdownFrame.ClipsDescendants = true
+            dropdownFrame.Parent = TabContent
+
+            local Corner = Instance.new("UICorner")
+            Corner.CornerRadius = UDim.new(0, 4)
+            Corner.Parent = dropdownFrame
+
+            local dropBtn = Instance.new("TextButton")
+            dropBtn.Size = UDim2.new(1, 0, 0, 32)
+            dropBtn.BackgroundTransparency = 1
+            dropBtn.Text = "  " .. text .. ": " .. tostring(currentOption)
+            dropBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            dropBtn.TextSize = 12
+            dropBtn.Font = Enum.Font.SourceSans
+            dropBtn.TextXAlignment = Enum.TextXAlignment.Left
+            dropBtn.Parent = dropdownFrame
+
+            local optionsScroll = Instance.new("ScrollingFrame")
+            optionsScroll.Size = UDim2.new(1, -10, 0, 0)
+            optionsScroll.Position = UDim2.new(0, 5, 0, 35)
+            optionsScroll.BackgroundTransparency = 1
+            optionsScroll.BorderSizePixel = 0
+            optionsScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+            optionsScroll.ScrollBarThickness = 3
+            optionsScroll.Parent = dropdownFrame
+
+            local optLayout = Instance.new("UIListLayout")
+            optLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            optLayout.Padding = UDim.new(0, 4)
+            optLayout.Parent = optionsScroll
+
+            optLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                optionsScroll.CanvasSize = UDim2.new(0, 0, 0, optLayout.AbsoluteContentSize.Y + 5)
+            end)
+
+            for _, opt in ipairs(options) do
+                local optBtn = Instance.new("TextButton")
+                optBtn.Size = UDim2.new(1, 0, 0, 26)
+                optBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+                optBtn.Text = "  " .. tostring(opt)
+                optBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+                optBtn.TextSize = 11
+                optBtn.Font = Enum.Font.SourceSans
+                optBtn.TextXAlignment = Enum.TextXAlignment.Left
+                optBtn.Parent = optionsScroll
+
+                local optCorner = Instance.new("UICorner")
+                optCorner.CornerRadius = UDim.new(0, 3)
+                optCorner.Parent = optBtn
+
+                optBtn.MouseButton1Click:Connect(function()
+                    currentOption = opt
+                    dropBtn.Text = "  " .. text .. ": " .. tostring(currentOption)
+                    isOpenDD = false
+                    TweenService:Create(dropdownFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, 32)}):Play()
+                    pcall(function() callback(currentOption) end)
+                end)
+            end
+
+            dropBtn.MouseButton1Click:Connect(function()
+                isOpenDD = not isOpenDD
+                local targetHeight = isOpenDD and math.clamp(optLayout.AbsoluteContentSize.Y + 45, 40, 130) or 32
+                TweenService:Create(dropdownFrame, TweenInfo.new(0.2), {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
+                optionsScroll.Size = UDim2.new(1, -10, 0, targetHeight - 38)
+            end)
+        end
+
+        -- NUEVO: Keybind
+        function TabAPI:AddKeybind(text, defaultKey, callback)
+            local currentKey = defaultKey or Enum.KeyCode.E
+            local binding = false
+
+            local kbBtn = Instance.new("TextButton")
+            kbBtn.Size = UDim2.new(1, 0, 0, 32)
+            kbBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            kbBtn.Text = "  " .. text
+            kbBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            kbBtn.TextSize = 12
+            kbBtn.Font = Enum.Font.SourceSans
+            kbBtn.TextXAlignment = Enum.TextXAlignment.Left
+            kbBtn.Parent = TabContent
+
+            local Corner = Instance.new("UICorner")
+            Corner.CornerRadius = UDim.new(0, 4)
+            Corner.Parent = kbBtn
+
+            local valLbl = Instance.new("TextLabel")
+            valLbl.Size = UDim2.new(0, 100, 1, 0)
+            valLbl.Position = UDim2.new(1, -105, 0, 0)
+            valLbl.BackgroundTransparency = 1
+            valLbl.Text = "[" .. currentKey.Name .. "]"
+            valLbl.TextColor3 = Color3.fromRGB(0, 170, 255)
+            valLbl.TextSize = 12
+            valLbl.Font = Enum.Font.SourceSansBold
+            valLbl.TextXAlignment = Enum.TextXAlignment.Right
+            valLbl.Parent = kbBtn
+
+            kbBtn.MouseButton1Click:Connect(function()
+                binding = true
+                valLbl.Text = "[...]"
+            end)
+
+            UserInputService.InputBegan:Connect(function(input, gp)
+                if binding then
+                    if input.UserInputType == Enum.UserInputType.Keyboard then
+                        currentKey = input.KeyCode
+                        valLbl.Text = "[" .. currentKey.Name .. "]"
+                        binding = false
+                        pcall(function() callback(currentKey) end)
+                    end
+                else
+                    if not gp and input.KeyCode == currentKey then
+                        pcall(function() callback(currentKey) end)
+                    end
+                end
+            end)
+        end
+
+        -- NUEVO: ColorPicker Avanzado con Paleta Flotante, Círculo Arrastrable, Aceptar y Cancelar
         function TabAPI:AddColorPicker(text, defaultColor, callback)
             local color = defaultColor or Color3.fromRGB(255, 255, 255)
             local cpBtn = Instance.new("TextButton")
@@ -554,14 +718,123 @@ function Library:CreateWindow(config)
             prevCorner.CornerRadius = UDim.new(0, 3)
             prevCorner.Parent = preview
 
-            local toggled = false
             cpBtn.MouseButton1Click:Connect(function()
-                toggled = not toggled
-                if toggled then
-                    color = Color3.fromRGB(math.random(0,255), math.random(0,255), math.random(0,255))
+                local pickerGui = Instance.new("Frame")
+                pickerGui.Size = UDim2.new(0, 220, 0, 240)
+                pickerGui.Position = UDim2.new(0.5, -110, 0.5, -120)
+                pickerGui.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+                pickerGui.BorderSizePixel = 0
+                pickerGui.Active = true
+                pickerGui.Draggable = true
+                pickerGui.Parent = ScreenGui
+
+                local pickerCorner = Instance.new("UICorner")
+                pickerCorner.CornerRadius = UDim.new(0, 6)
+                pickerCorner.Parent = pickerGui
+
+                local pickerStroke = Instance.new("UIStroke")
+                pickerStroke.Thickness = 1.5
+                pickerStroke.Color = Color3.fromRGB(0, 170, 255)
+                pickerStroke.Parent = pickerGui
+
+                local titleL = Instance.new("TextLabel")
+                titleL.Size = UDim2.new(1, 0, 0, 30)
+                titleL.BackgroundTransparency = 1
+                titleL.Text = "Seleccionar Color"
+                titleL.TextColor3 = Color3.fromRGB(255, 255, 255)
+                titleL.TextSize = 13
+                titleL.Font = Enum.Font.SourceSansBold
+                titleL.Parent = pickerGui
+
+                local colorArea = Instance.new("Frame")
+                colorArea.Size = UDim2.new(1, -20, 0, 120)
+                colorArea.Position = UDim2.new(0, 10, 0, 35)
+                colorArea.BackgroundColor3 = color
+                colorArea.BorderSizePixel = 0
+                colorArea.Parent = pickerGui
+
+                local caCorner = Instance.new("UICorner")
+                caCorner.CornerRadius = UDim.new(0, 4)
+                caCorner.Parent = colorArea
+
+                local circle = Instance.new("Frame")
+                circle.Size = UDim2.new(0, 16, 0, 16)
+                circle.AnchorPoint = Vector2.new(0.5, 0.5)
+                circle.Position = UDim2.new(0.5, 0, 0.5, 0)
+                circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                circle.Parent = colorArea
+
+                local cCorner = Instance.new("UICorner")
+                cCorner.CornerRadius = UDim.new(1, 0)
+                cCorner.Parent = circle
+
+                local tempColor = color
+                local selecting = false
+
+                colorArea.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                        selecting = true
+                    end
+                end)
+
+                UserInputService.InputEnded:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                        selecting = false
+                    end
+                end)
+
+                UserInputService.InputChanged:Connect(function(input)
+                    if selecting and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                        local pos = input.Position
+                        local absPos = colorArea.AbsolutePosition
+                        local absSize = colorArea.AbsoluteSize
+                        local relX = math.clamp((pos.X - absPos.X) / absSize.X, 0, 1)
+                        local relY = math.clamp((pos.Y - absPos.Y) / absSize.Y, 0, 1)
+                        
+                        circle.Position = UDim2.new(relX, 0, relY, 0)
+                        tempColor = Color3.fromHSV(relX, 1, 1 - relY)
+                        colorArea.BackgroundColor3 = tempColor
+                    end
+                end)
+
+                local acceptBtn = Instance.new("TextButton")
+                acceptBtn.Size = UDim2.new(0.5, -15, 0, 30)
+                acceptBtn.Position = UDim2.new(0, 10, 1, -40)
+                acceptBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+                acceptBtn.Text = "Aceptar"
+                acceptBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                acceptBtn.TextSize = 12
+                acceptBtn.Font = Enum.Font.SourceSansBold
+                acceptBtn.Parent = pickerGui
+
+                local acCorner = Instance.new("UICorner")
+                acCorner.CornerRadius = UDim.new(0, 4)
+                acCorner.Parent = acceptBtn
+
+                local cancelBtn = Instance.new("TextButton")
+                cancelBtn.Size = UDim2.new(0.5, -15, 0, 30)
+                cancelBtn.Position = UDim2.new(0.5, 5, 1, -40)
+                cancelBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+                cancelBtn.Text = "Cancelar"
+                cancelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+                cancelBtn.TextSize = 12
+                cancelBtn.Font = Enum.Font.SourceSansBold
+                cancelBtn.Parent = pickerGui
+
+                local ccCorner = Instance.new("UICorner")
+                ccCorner.CornerRadius = UDim.new(0, 4)
+                ccCorner.Parent = cancelBtn
+
+                acceptBtn.MouseButton1Click:Connect(function()
+                    color = tempColor
                     preview.BackgroundColor3 = color
                     pcall(function() callback(color) end)
-                end
+                    pickerGui:Destroy()
+                end)
+
+                cancelBtn.MouseButton1Click:Connect(function()
+                    pickerGui:Destroy()
+                end)
             end)
         end
 
