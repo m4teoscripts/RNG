@@ -9,7 +9,6 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- SISTEMA DE NOTIFICACIONES GLOBAL
 function Library:Notify(data)
     local screenGui = CoreGui:FindFirstChild("DeltaAdvancedLib")
     if not screenGui then return end
@@ -61,7 +60,6 @@ function Library:Notify(data)
     end)
 end
 
--- VENTANA PRINCIPAL Y KEY SYSTEM
 function Library:CreateWindow(config)
     local titleText = config.Title or "RNG Hub"
     local useKey = config.KeySystem or false
@@ -96,6 +94,7 @@ function Library:CreateWindow(config)
     UIStroke.Thickness = 2
     UIStroke.Parent = MainFrame
 
+    -- Botón Flotante "UI" (Fijo, NO DRAGGABLE)
     local ToggleUiBtn = Instance.new("TextButton")
     ToggleUiBtn.Size = UDim2.new(0, 45, 0, 45)
     ToggleUiBtn.Position = UDim2.new(0, 10, 0.5, -22)
@@ -106,7 +105,7 @@ function Library:CreateWindow(config)
     ToggleUiBtn.TextSize = 14
     ToggleUiBtn.Font = Enum.Font.SourceSansBold
     ToggleUiBtn.Active = true
-    ToggleUiBtn.Draggable = true
+    ToggleUiBtn.Draggable = false -- <-- FIJO (NO SE PUEDE MOVER)
     ToggleUiBtn.Visible = not useKey
     ToggleUiBtn.Parent = ScreenGui
 
@@ -569,7 +568,7 @@ function Library:CreateWindow(config)
         return TabAPI
     end
 
-    return Library
+    return Window
 end
 
 return Library
