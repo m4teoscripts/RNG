@@ -1,5 +1,5 @@
 -- ==========================================
--- DELTA ADVANCED UI LIBRARY (M4teoScripts)
+-- RNG HUB - DELTA EXECUTOR (M4teoScripts)
 -- ==========================================
 
 local Library = {}
@@ -16,7 +16,7 @@ function Library:CreateWindow(titleText)
     ScreenGui.Name = "DeltaAdvancedLib"
     ScreenGui.Parent = CoreGui
 
-    -- 1. BOTÓN FLOTANTE "UI" (Izquierda, Negro con RGB)
+    -- Botón Flotante "UI" (Izquierda, Negro con RGB)
     local ToggleUiBtn = Instance.new("TextButton")
     ToggleUiBtn.Size = UDim2.new(0, 45, 0, 45)
     ToggleUiBtn.Position = UDim2.new(0, 10, 0.5, -22)
@@ -38,7 +38,7 @@ function Library:CreateWindow(titleText)
     ToggleStroke.Thickness = 2
     ToggleStroke.Parent = ToggleUiBtn
 
-    -- 2. VENTANA PRINCIPAL
+    -- Ventana Principal (Inicia abierta para que la veas al instante)
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 280, 0, 340)
     MainFrame.Position = UDim2.new(0.5, -140, 0.5, -170)
@@ -47,19 +47,18 @@ function Library:CreateWindow(titleText)
     MainFrame.Active = true
     MainFrame.Draggable = true
     MainFrame.ClipsDescendants = true
-    MainFrame.Visible = false -- Inicia oculta hasta que presionen "UI"
+    MainFrame.Visible = true 
     MainFrame.Parent = ScreenGui
 
     local CornerMain = Instance.new("UICorner")
     CornerMain.CornerRadius = UDim.new(0, 6)
     CornerMain.Parent = MainFrame
 
-    -- Borde RGB Principal
     local UIStroke = Instance.new("UIStroke")
     UIStroke.Thickness = 2
     UIStroke.Parent = MainFrame
 
-    -- Bucle RGB para ambos elementos
+    -- Bucle RGB
     task.spawn(function()
         while ScreenGui.Parent do
             local hue = tick() % 5 / 5
@@ -75,7 +74,7 @@ function Library:CreateWindow(titleText)
     Title.Size = UDim2.new(1, -55, 0, 30)
     Title.Position = UDim2.new(0, 10, 0, 0)
     Title.BackgroundTransparency = 1
-    Title.Text = titleText or "Delta Menu"
+    Title.Text = titleText or "RNG Hub"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 13
     Title.Font = Enum.Font.SourceSansBold
@@ -96,7 +95,7 @@ function Library:CreateWindow(titleText)
     CornerClose.CornerRadius = UDim.new(0, 4)
     CornerClose.Parent = CloseButton
 
-    -- Contenedor de Pestañas (Barra Superior de Tabs)
+    -- Contenedor de Pestañas
     local TabBar = Instance.new("ScrollingFrame")
     TabBar.Size = UDim2.new(1, -16, 0, 30)
     TabBar.Position = UDim2.new(0, 8, 0, 35)
@@ -112,21 +111,19 @@ function Library:CreateWindow(titleText)
     TabListLayout.Padding = UDim.new(0, 5)
     TabListLayout.Parent = TabBar
 
-    -- Contenedor de Páginas (Contenido de cada Tab)
+    -- Contenedor de Páginas
     local PagesContainer = Instance.new("Frame")
     PagesContainer.Size = UDim2.new(1, -16, 1, -75)
     PagesContainer.Position = UDim2.new(0, 8, 0, 70)
     PagesContainer.BackgroundTransparency = 1
     PagesContainer.Parent = MainFrame
 
-    -- Lógica de Animación del Botón UI (Abrir/Cerrar)
-    local isOpen = false
+    -- Animación Botón UI
+    local isOpen = true
     ToggleUiBtn.MouseButton1Click:Connect(function()
         isOpen = not isOpen
         if isOpen then
             MainFrame.Visible = true
-            MainFrame.Size = UDim2.new(0, 0, 0, 0)
-            MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
             MainFrame:TweenSizeAndPosition(UDim2.new(0, 280, 0, 340), UDim2.new(0.5, -140, 0.5, -170), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.25, true)
         else
             MainFrame:TweenSizeAndPosition(UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quad, 0.2, true, function()
@@ -139,14 +136,12 @@ function Library:CreateWindow(titleText)
         ScreenGui:Destroy()
     end)
 
-    -- TABLA DE LA VENTANA
     local Window = {}
     local firstTab = true
 
-    -- 3. CREAR PESTAÑA (TAB)
     function Window:AddTab(tabName)
         local TabButton = Instance.new("TextButton")
-        TabButton.Size = UDim2.new(0, 80, 1, 0)
+        TabButton.Size = UDim2.new(0, 85, 1, 0)
         TabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         TabButton.Text = tabName
         TabButton.TextColor3 = Color3.fromRGB(150, 150, 150)
@@ -158,7 +153,6 @@ function Library:CreateWindow(titleText)
         CornerTab.CornerRadius = UDim.new(0, 4)
         CornerTab.Parent = TabButton
 
-        -- Contenedor Scrollable de esta pestaña específica
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Size = UDim2.new(1, 0, 1, 0)
         TabContent.BackgroundTransparency = 1
@@ -177,7 +171,6 @@ function Library:CreateWindow(titleText)
             TabContent.CanvasSize = UDim2.new(0, 0, 0, ContentLayout.AbsoluteContentSize.Y + 10)
         end)
 
-        -- Activar primera pestaña por defecto
         if firstTab then
             firstTab = false
             TabContent.Visible = true
@@ -185,12 +178,9 @@ function Library:CreateWindow(titleText)
             TabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         end
 
-        -- Cambio de Pestañas con Animación de color
         TabButton.MouseButton1Click:Connect(function()
             for _, child in pairs(PagesContainer:GetChildren()) do
-                if child:IsA("ScrollingFrame") then
-                    child.Visible = false
-                end
+                if child:IsA("ScrollingFrame") then child.Visible = false end
             end
             for _, btn in pairs(TabBar:GetChildren()) do
                 if btn:IsA("TextButton") then
@@ -201,7 +191,6 @@ function Library:CreateWindow(titleText)
             TweenService:Create(TabButton, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(45, 45, 45), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
         end)
 
-        -- ELEMENTOS DENTRO DE LA PESTAÑA
         local TabAPI = {}
 
         function TabAPI:AddHeader(text)
@@ -231,9 +220,7 @@ function Library:CreateWindow(titleText)
             Corner.CornerRadius = UDim.new(0, 4)
             Corner.Parent = Btn
 
-            Btn.MouseButton1Click:Connect(function()
-                pcall(callback)
-            end)
+            Btn.MouseButton1Click:Connect(function() pcall(callback) end)
         end
 
         function TabAPI:AddToggle(text, defaultState, callback)
@@ -260,74 +247,30 @@ function Library:CreateWindow(titleText)
             end)
         end
 
-        function TabAPI:AddSlider(text, min, max, default, callback)
-            local currentVal = default or min
-            local SliderBg = Instance.new("Frame")
-            SliderBg.Size = UDim2.new(1, 0, 0, 45)
-            SliderBg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-            SliderBg.BorderSizePixel = 0
-            SliderBg.Parent = TabContent
-
-            local Corner = Instance.new("UICorner")
-            Corner.CornerRadius = UDim.new(0, 4)
-            Corner.Parent = SliderBg
-
-            local SliderText = Instance.new("TextLabel")
-            SliderText.Size = UDim2.new(1, 0, 0, 20)
-            SliderText.BackgroundTransparency = 1
-            SliderText.Text = "  " .. text .. ": " .. tostring(currentVal)
-            SliderText.TextColor3 = Color3.fromRGB(255, 255, 255)
-            SliderText.TextSize = 12
-            SliderText.Font = Enum.Font.SourceSans
-            SliderText.TextXAlignment = Enum.TextXAlignment.Left
-            SliderText.Parent = SliderBg
-
-            local SliderBar = Instance.new("Frame")
-            SliderBar.Size = UDim2.new(1, -20, 0, 6)
-            SliderBar.Position = UDim2.new(0, 10, 0, 28)
-            SliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-            SliderBar.BorderSizePixel = 0
-            SliderBar.Parent = SliderBg
-
-            local initialPercent = math.clamp((currentVal - min) / (max - min), 0, 1)
-            local SliderFill = Instance.new("Frame")
-            SliderFill.Size = UDim2.new(initialPercent, 0, 1, 0)
-            SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-            SliderFill.BorderSizePixel = 0
-            SliderFill.Parent = SliderBar
-
-            local dragging = false
-            SliderBar.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = true
-                end
-            end)
-
-            UserInputService.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    dragging = false
-                end
-            end)
-
-            UserInputService.InputChanged:Connect(function(input)
-                if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                    local mousePos = input.Position.X
-                    local barPos = SliderBar.AbsolutePosition.X
-                    local barSize = SliderBar.AbsoluteSize.X
-                    local percentage = math.clamp((mousePos - barPos) / barSize, 0, 1)
-                    
-                    SliderFill.Size = UDim2.new(percentage, 0, 1, 0)
-                    currentVal = math.floor((min + (max - min) * percentage) * 10) / 10
-                    SliderText.Text = "  " .. text .. ": " .. tostring(currentVal)
-                    pcall(function() callback(currentVal) end)
-                end
-            end)
-        end
-
         return TabAPI
     end
 
     return Window
 end
 
-return Library
+-- ==========================================
+-- CREACIÓN DE LAS PESTAÑAS Y ELEMENTOS DENTRO DEL HUBS
+-- ==========================================
+local Window = Library:CreateWindow("RNG Hub Pro")
+
+-- Pestaña 1
+local MainTab = Window:AddTab("Principal")
+MainTab:AddHeader("Automatización")
+MainTab:AddToggle("Auto-Roll", false, function(state)
+    print("Auto-Roll cambiado a:", state)
+end)
+MainTab:AddButton("Tirada Única", function()
+    print("¡Tirada realizada con éxito!")
+end)
+
+-- Pestaña 2
+local SettingsTab = Window:AddTab("Ajustes")
+SettingsTab:AddHeader("Preferencias")
+SettingsTab:AddToggle("Ocultar Animaciones", true, function(state)
+    print("Animaciones ocultas:", state)
+end)
