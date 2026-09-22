@@ -1,21 +1,27 @@
+-- ==========================================
+-- SCRIPT DE PRUEBA PARA RNG (Delta Executor)
+-- Repositorio: m4teoscripts/RNG/MainRNG.lua
+-- ==========================================
+
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-if CoreGui:FindFirstChild("DeltaMegaGui") then
-    CoreGui.DeltaMegaGui:Destroy()
+-- Evitar duplicados si se ejecuta varias veces
+if CoreGui:FindFirstChild("DeltaRNGTest") then
+    CoreGui.DeltaRNGTest:Destroy()
 end
 
 -- Contenedor Principal
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DeltaMegaGui"
+ScreenGui.Name = "DeltaRNGTest"
 ScreenGui.Parent = CoreGui
 
--- Ventana Principal (260x340)
+-- Ventana Principal (260x320)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 260, 0, 340)
-MainFrame.Position = UDim2.new(0.5, -130, 0.5, -170)
+MainFrame.Size = UDim2.new(0, 260, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -160)
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
@@ -40,7 +46,7 @@ local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 25)
 Title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 Title.BorderSizePixel = 0
-Title.Text = "  Delta Ultimate Menu"
+Title.Text = "  RNG Test Menu - Delta"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 12
 Title.Font = Enum.Font.SourceSansBold
@@ -70,11 +76,11 @@ ScrollFrame.Size = UDim2.new(1, -10, 1, -35)
 ScrollFrame.Position = UDim2.new(0, 5, 0, 30)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.BorderSizePixel = 0
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 380)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 280)
 ScrollFrame.ScrollBarThickness = 4
 ScrollFrame.Parent = MainFrame
 
--- FUNCIÓN AUXILIAR: SECCIÓN
+-- Función de ayuda para secciones
 local function createHeader(text, yPos)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, 0, 0, 20)
@@ -88,32 +94,38 @@ local function createHeader(text, yPos)
     lbl.Parent = ScrollFrame
 end
 
--- 1. SECCIÓN: JUGADOR
-createHeader("Configuración de Jugador", 5)
+createHeader("Automatización RNG", 5)
 
--- Toggle 1 (ESP / Godmode)
-local Toggle1 = Instance.new("TextButton")
-Toggle1.Size = UDim2.new(1, 0, 0, 32)
-Toggle1.Position = UDim2.new(0, 0, 0, 25)
-Toggle1.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-Toggle1.Text = "  GodMode [ OFF ]"
-Toggle1.TextColor3 = Color3.fromRGB(255, 100, 100)
-Toggle1.TextSize = 12
-Toggle1.Font = Enum.Font.SourceSansBold
-Toggle1.TextXAlignment = Enum.TextXAlignment.Left
-Toggle1.Parent = ScrollFrame
+-- 1. TOGGLE: Auto-Roll
+local AutoRollBtn = Instance.new("TextButton")
+AutoRollBtn.Size = UDim2.new(1, 0, 0, 35)
+AutoRollBtn.Position = UDim2.new(0, 0, 0, 25)
+AutoRollBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+AutoRollBtn.Text = "  Auto-Roll [ OFF ]"
+AutoRollBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+AutoRollBtn.TextSize = 12
+AutoRollBtn.Font = Enum.Font.SourceSansBold
+AutoRollBtn.TextXAlignment = Enum.TextXAlignment.Left
+AutoRollBtn.Parent = ScrollFrame
 
-local t1State = false
-Toggle1.MouseButton1Click:Connect(function()
-    t1State = not t1State
-    Toggle1.Text = t1State and "  GodMode [ ON ]" or "  GodMode [ OFF ]"
-    Toggle1.TextColor3 = t1State and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
-end)
+-- 2. STATUS LABEL (Muestra el resultado de las tiradas simuladas)
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Size = UDim2.new(1, 0, 0, 35)
+StatusLabel.Position = UDim2.new(0, 0, 0, 65)
+StatusLabel.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+StatusLabel.Text = "  Estado: Esperando inicio..."
+StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+StatusLabel.TextSize = 11
+StatusLabel.Font = Enum.Font.SourceSans
+StatusLabel.TextXAlignment = Enum.TextXAlignment.Left
+StatusLabel.Parent = ScrollFrame
 
--- Slider Funcional (Velocidad)
+createHeader("Configuración de Ajustes", 105)
+
+-- 3. SLIDER: Retardo de Tirada (Segundos)
 local SliderBg = Instance.new("Frame")
 SliderBg.Size = UDim2.new(1, 0, 0, 45)
-SliderBg.Position = UDim2.new(0, 0, 0, 62)
+SliderBg.Position = UDim2.new(0, 0, 0, 125)
 SliderBg.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 SliderBg.BorderSizePixel = 0
 SliderBg.Parent = ScrollFrame
@@ -121,7 +133,7 @@ SliderBg.Parent = ScrollFrame
 local SliderText = Instance.new("TextLabel")
 SliderText.Size = UDim2.new(1, 0, 0, 20)
 SliderText.BackgroundTransparency = 1
-SliderText.Text = "  Velocidad: 16"
+SliderText.Text = "  Retardo (seg): 1.0"
 SliderText.TextColor3 = Color3.fromRGB(255, 255, 255)
 SliderText.TextSize = 12
 SliderText.Font = Enum.Font.SourceSans
@@ -136,13 +148,15 @@ SliderBar.BorderSizePixel = 0
 SliderBar.Parent = SliderBg
 
 local SliderFill = Instance.new("Frame")
-SliderFill.Size = UDim2.new(0.16, 0, 1, 0)
+SliderFill.Size = UDim2.new(0.5, 0, 1, 0)
 SliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 SliderFill.BorderSizePixel = 0
 SliderFill.Parent = SliderBar
 
--- Lógica del Slider Arrastrable
+-- Lógica del Slider
+local rollDelay = 1.0
 local dragging = false
+
 SliderBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
@@ -163,67 +177,50 @@ UserInputService.InputChanged:Connect(function(input)
         local percentage = math.clamp((mousePos - barPos) / barSize, 0, 1)
         
         SliderFill.Size = UDim2.new(percentage, 0, 1, 0)
-        local value = math.floor(percentage * 100)
-        SliderText.Text = "  Velocidad: " .. value
-        
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.WalkSpeed = value
-        end
+        rollDelay = math.floor((percentage * 2.0) * 10) / 10
+        if rollDelay < 0.1 then rollDelay = 0.1 end
+        SliderText.Text = "  Retardo (seg): " .. tostring(rollDelay)
     end
 end)
 
--- 2. SECCIÓN: EXTRAS
-createHeader("Extras y Utilidades", 115)
-
--- Toggle 2
-local Toggle2 = Instance.new("TextButton")
-Toggle2.Size = UDim2.new(1, 0, 0, 32)
-Toggle2.Position = UDim2.new(0, 0, 0, 135)
-Toggle2.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-Toggle2.Text = "  Auto-Farm [ OFF ]"
-Toggle2.TextColor3 = Color3.fromRGB(255, 100, 100)
-Toggle2.TextSize = 12
-Toggle2.Font = Enum.Font.SourceSansBold
-Toggle2.TextXAlignment = Enum.TextXAlignment.Left
-Toggle2.Parent = ScrollFrame
-
-local t2State = false
-Toggle2.MouseButton1Click:Connect(function()
-    t2State = not t2State
-    Toggle2.Text = t2State and "  Auto-Farm [ ON ]" or "  Auto-Farm [ OFF ]"
-    Toggle2.TextColor3 = t2State and Color3.fromRGB(100, 255, 100) or Color3.fromRGB(255, 100, 100)
-end)
-
--- Dropdown
-local DropdownBtn = Instance.new("TextButton")
-DropdownBtn.Size = UDim2.new(1, 0, 0, 32)
-DropdownBtn.Position = UDim2.new(0, 0, 0, 172)
-DropdownBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-DropdownBtn.Text = "  Modo de Juego v [ Normal ]"
-DropdownBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-DropdownBtn.TextSize = 12
-DropdownBtn.Font = Enum.Font.SourceSans
-DropdownBtn.TextXAlignment = Enum.TextXAlignment.Left
-DropdownBtn.Parent = ScrollFrame
-
-local dropOpen = false
-DropdownBtn.MouseButton1Click:Connect(function()
-    dropOpen = not dropOpen
-    DropdownBtn.Text = dropOpen and "  Modo de Juego ^ [ Pro ]" or "  Modo de Juego v [ Normal ]"
-end)
-
--- TextBox
+-- 4. TEXTBOX: Filtro de Rareza opcional
 local TextBox = Instance.new("TextBox")
-TextBox.Size = UDim2.new(1, 0, 0, 32)
-TextBox.Position = UDim2.new(0, 0, 0, 209)
+TextBox.Size = UDim2.new(1, 0, 0, 35)
+TextBox.Position = UDim2.new(0, 0, 0, 175)
 TextBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-TextBox.PlaceholderText = " Escribe un mensaje global..."
+TextBox.PlaceholderText = " Filtrar rareza (Ej: Epic)..."
 TextBox.Text = ""
 TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextBox.TextSize = 12
 TextBox.Font = Enum.Font.SourceSans
 TextBox.ClearTextOnFocus = false
 TextBox.Parent = ScrollFrame
+
+-- LÓGICA DE PRUEBA DEL RNG (Auto-Roll Loop)
+local autoRollActive = false
+local rollsCount = 0
+
+AutoRollBtn.MouseButton1Click:Connect(function()
+    autoRollActive = not autoRollActive
+    if autoRollActive then
+        AutoRollBtn.Text = "  Auto-Roll [ ON ]"
+        AutoRollBtn.TextColor3 = Color3.fromRGB(100, 255, 100)
+        
+        task.spawn(function()
+            local rarities = {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic"}
+            while autoRollActive do
+                rollsCount = rollsCount + 1
+                local randomRoll = rarities[math.random(1, #rarities)]
+                StatusLabel.Text = "  Tirada #" .. rollsCount .. ": [" .. randomRoll .. "]"
+                task.wait(rollDelay)
+            end
+        end)
+    else
+        AutoRollBtn.Text = "  Auto-Roll [ OFF ]"
+        AutoRollBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+        StatusLabel.Text = "  Estado: Pausado."
+    end
+end)
 
 -- Lógica Minimizar
 local minimized = false
@@ -234,7 +231,7 @@ MinButton.MouseButton1Click:Connect(function()
         ScrollFrame.Visible = false
         MinButton.Text = "+"
     else
-        MainFrame:TweenSize(UDim2.new(0, 260, 0, 340), "Out", "Quad", 0.2, true)
+        MainFrame:TweenSize(UDim2.new(0, 260, 0, 320), "Out", "Quad", 0.2, true)
         task.wait(0.1)
         ScrollFrame.Visible = true
         MinButton.Text = "-"
@@ -245,3 +242,5 @@ end)
 CloseButton.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
+
+print("¡Script de prueba RNG cargado con éxito en Delta!")
