@@ -270,13 +270,14 @@ function Library:CreateWindow(config)
     CornerClose.CornerRadius = UDim.new(0, 4)
     CornerClose.Parent = CloseButton
 
+    -- Barra de Pestañas con Scroll Horizontal Habilitado
     local TabBar = Instance.new("ScrollingFrame")
     TabBar.Size = UDim2.new(1, -16, 0, 30)
     TabBar.Position = UDim2.new(0, 8, 0, 35)
     TabBar.BackgroundTransparency = 1
     TabBar.BorderSizePixel = 0
     TabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabBar.ScrollBarThickness = 0
+    TabBar.ScrollBarThickness = 3 -- Permite scroll horizontal en las pestañas
     TabBar.Parent = MainFrame
 
     local TabListLayout = Instance.new("UIListLayout")
@@ -284,6 +285,10 @@ function Library:CreateWindow(config)
     TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     TabListLayout.Padding = UDim.new(0, 5)
     TabListLayout.Parent = TabBar
+
+    TabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        TabBar.CanvasSize = UDim2.new(0, TabListLayout.AbsoluteContentSize.X + 10, 0, 0)
+    end)
 
     local PagesContainer = Instance.new("Frame")
     PagesContainer.Size = UDim2.new(1, -16, 1, -75)
@@ -325,6 +330,7 @@ function Library:CreateWindow(config)
         CornerTab.CornerRadius = UDim.new(0, 4)
         CornerTab.Parent = TabButton
 
+        -- Scroll dentro de las pestañas (Vertical)
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Size = UDim2.new(1, 0, 1, 0)
         TabContent.BackgroundTransparency = 1
@@ -688,7 +694,6 @@ function Library:CreateWindow(config)
             end)
         end
 
-        -- COLORPICKER MODIFICADO: Horizontal (acostada), No Draggable, con Preview en cuadro chico
         function TabAPI:AddColorPicker(text, defaultColor, callback)
             local color = defaultColor or Color3.fromRGB(255, 255, 255)
             local cpBtn = Instance.new("TextButton")
@@ -716,14 +721,13 @@ function Library:CreateWindow(config)
             prevCorner.Parent = preview
 
             cpBtn.MouseButton1Click:Connect(function()
-                -- Ventana Horizontal / Acostada y No Draggable
                 local pickerGui = Instance.new("Frame")
                 pickerGui.Size = UDim2.new(0, 310, 0, 160)
                 pickerGui.Position = UDim2.new(0.5, -155, 0.5, -80)
                 pickerGui.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
                 pickerGui.BorderSizePixel = 0
                 pickerGui.Active = true
-                pickerGui.Draggable = false -- NO DRAGGABLE
+                pickerGui.Draggable = false
                 pickerGui.Parent = ScreenGui
 
                 local pickerCorner = Instance.new("UICorner")
@@ -746,7 +750,6 @@ function Library:CreateWindow(config)
                 titleL.TextXAlignment = Enum.TextXAlignment.Left
                 titleL.Parent = pickerGui
 
-                -- Cuadro Chico de Preview dentro de la ventana
                 local previewPicker = Instance.new("Frame")
                 previewPicker.Size = UDim2.new(0, 35, 0, 35)
                 previewPicker.Position = UDim2.new(1, -45, 0, 36)
@@ -758,7 +761,6 @@ function Library:CreateWindow(config)
                 ppCorner.CornerRadius = UDim.new(0, 4)
                 ppCorner.Parent = previewPicker
 
-                -- Área de la Paleta de Colores (Horizontal)
                 local colorArea = Instance.new("Frame")
                 colorArea.Size = UDim2.new(0, 215, 0, 75)
                 colorArea.Position = UDim2.new(0, 10, 0, 36)
@@ -811,7 +813,6 @@ function Library:CreateWindow(config)
                     end
                 end)
 
-                -- Botones Aceptar / Cancelar
                 local acceptBtn = Instance.new("TextButton")
                 acceptBtn.Size = UDim2.new(0.5, -15, 0, 26)
                 acceptBtn.Position = UDim2.new(0, 10, 1, -34)
