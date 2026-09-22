@@ -95,7 +95,6 @@ function Library:CreateWindow(config)
     UIStroke.Thickness = 2
     UIStroke.Parent = MainFrame
 
-    -- Botón Flotante "UI" (Fijo, No Draggable)
     local ToggleUiBtn = Instance.new("TextButton")
     ToggleUiBtn.Size = UDim2.new(0, 45, 0, 45)
     ToggleUiBtn.Position = UDim2.new(0, 10, 0.5, -22)
@@ -285,7 +284,6 @@ function Library:CreateWindow(config)
     CornerClose.Parent = CloseButton
 
     local tabbarY = subtitleText ~= "" and 38 or 30
-    -- Barra de Pestañas con Scroll Horizontal Habilitado
     local TabBar = Instance.new("ScrollingFrame")
     TabBar.Size = UDim2.new(1, -16, 0, 30)
     TabBar.Position = UDim2.new(0, 8, 0, tabbarY)
@@ -737,12 +735,11 @@ function Library:CreateWindow(config)
 
             cpBtn.MouseButton1Click:Connect(function()
                 local pickerGui = Instance.new("Frame")
-                pickerGui.Size = UDim2.new(0, 310, 0, 160)
-                pickerGui.Position = UDim2.new(0.5, -155, 0.5, -80)
+                pickerGui.Size = UDim2.new(0, 280, 0, 155)
+                pickerGui.Position = UDim2.new(0.5, -140, 0.5, -77)
                 pickerGui.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
                 pickerGui.BorderSizePixel = 0
                 pickerGui.Active = true
-                pickerGui.Draggable = false
                 pickerGui.Parent = ScreenGui
 
                 local pickerCorner = Instance.new("UICorner")
@@ -758,7 +755,7 @@ function Library:CreateWindow(config)
                 titleL.Size = UDim2.new(1, -15, 0, 24)
                 titleL.Position = UDim2.new(0, 10, 0, 6)
                 titleL.BackgroundTransparency = 1
-                titleL.Text = "Selector de Color"
+                titleL.Text = "Selector de Color (Arcoíris)"
                 titleL.TextColor3 = Color3.fromRGB(255, 255, 255)
                 titleL.TextSize = 12
                 titleL.Font = Enum.Font.SourceSansBold
@@ -766,8 +763,8 @@ function Library:CreateWindow(config)
                 titleL.Parent = pickerGui
 
                 local previewPicker = Instance.new("Frame")
-                previewPicker.Size = UDim2.new(0, 35, 0, 35)
-                previewPicker.Position = UDim2.new(1, -45, 0, 36)
+                previewPicker.Size = UDim2.new(0, 45, 0, 45)
+                previewPicker.Position = UDim2.new(1, -55, 0, 38)
                 previewPicker.BackgroundColor3 = color
                 previewPicker.BorderSizePixel = 0
                 previewPicker.Parent = pickerGui
@@ -776,59 +773,46 @@ function Library:CreateWindow(config)
                 ppCorner.CornerRadius = UDim.new(0, 4)
                 ppCorner.Parent = previewPicker
 
-                -- Área con degradado de espectro de colores (Arcoíris horizontal + Sombra vertical)
-                local colorArea = Instance.new("Frame")
-                colorArea.Size = UDim2.new(0, 215, 0, 75)
-                colorArea.Position = UDim2.new(0, 10, 0, 36)
-                colorArea.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                colorArea.BorderSizePixel = 0
-                colorArea.Parent = pickerGui
+                -- Barra de espectro de colores garantizada (bloques de colores reales para que no falle en móviles)
+                local colorBar = Instance.new("Frame")
+                colorBar.Size = UDim2.new(0, 200, 0, 45)
+                colorBar.Position = UDim2.new(0, 10, 0, 38)
+                colorBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                colorBar.BorderSizePixel = 0
+                colorBar.Parent = pickerGui
 
-                local caCorner = Instance.new("UICorner")
-                caCorner.CornerRadius = UDim.new(0, 4)
-                caCorner.Parent = colorArea
+                local cbCorner = Instance.new("UICorner")
+                cbCorner.CornerRadius = UDim.new(0, 4)
+                cbCorner.Parent = colorBar
 
-                local rainbowGrad = Instance.new("UIGradient")
-                rainbowGrad.Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)),
-                    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
-                    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
-                    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 255, 255)),
-                    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
-                    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
-                    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
-                })
-                rainbowGrad.Parent = colorArea
+                -- Creamos 6 secciones de colores vibrantes para formar el arcoíris perfectamente visible
+                local colorsList = {
+                    Color3.fromRGB(255, 0, 0),     -- Rojo
+                    Color3.fromRGB(255, 255, 0),   -- Amarillo
+                    Color3.fromRGB(0, 255, 0),     -- Verde
+                    Color3.fromRGB(0, 255, 255),   -- Cian
+                    Color3.fromRGB(0, 0, 255),     -- Azul
+                    Color3.fromRGB(255, 0, 255),   -- Magenta
+                    Color3.fromRGB(255, 0, 0)      -- Rojo final
+                }
 
-                local blackOverlay = Instance.new("Frame")
-                blackOverlay.Size = UDim2.new(1, 0, 1, 0)
-                blackOverlay.BackgroundTransparency = 1
-                blackOverlay.BorderSizePixel = 0
-                blackOverlay.Parent = colorArea
+                local gradLayout = Instance.new("UIListLayout")
+                gradLayout.FillDirection = Enum.FillDirection.Horizontal
+                gradLayout.SortOrder = Enum.SortOrder.LayoutOrder
+                gradLayout.Parent = colorBar
 
-                local blackGrad = Instance.new("UIGradient")
-                blackGrad.Transparency = NumberSequence.new({
-                    NumberSequenceKeypoint.new(0, 1),
-                    NumberSequenceKeypoint.new(1, 0)
-                })
-                blackGrad.Rotation = 90
-                blackGrad.Parent = blackOverlay
-
-                local circle = Instance.new("Frame")
-                circle.Size = UDim2.new(0, 14, 0, 14)
-                circle.AnchorPoint = Vector2.new(0.5, 0.5)
-                circle.Position = UDim2.new(0.5, 0, 0.5, 0)
-                circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                circle.Parent = colorArea
-
-                local cCorner = Instance.new("UICorner")
-                cCorner.CornerRadius = UDim.new(1, 0)
-                cCorner.Parent = circle
+                for _, colVal in ipairs(colorsList) do
+                    local strip = Instance.new("Frame")
+                    strip.Size = UDim2.new(1/#colorsList, 0, 1, 0)
+                    strip.BackgroundColor3 = colVal
+                    strip.BorderSizePixel = 0
+                    strip.Parent = colorBar
+                end
 
                 local tempColor = color
                 local selecting = false
 
-                colorArea.InputBegan:Connect(function(input)
+                colorBar.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                         selecting = true
                     end
@@ -843,20 +827,18 @@ function Library:CreateWindow(config)
                 UserInputService.InputChanged:Connect(function(input)
                     if selecting and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                         local pos = input.Position
-                        local absPos = colorArea.AbsolutePosition
-                        local absSize = colorArea.AbsoluteSize
+                        local absPos = colorBar.AbsolutePosition
+                        local absSize = colorBar.AbsoluteSize
                         local relX = math.clamp((pos.X - absPos.X) / absSize.X, 0, 1)
-                        local relY = math.clamp((pos.Y - absPos.Y) / absSize.Y, 0, 1)
                         
-                        circle.Position = UDim2.new(relX, 0, relY, 0)
-                        tempColor = Color3.fromHSV(relX, 1, 1 - relY)
+                        tempColor = Color3.fromHSV(relX, 1, 1)
                         previewPicker.BackgroundColor3 = tempColor
                     end
                 end)
 
                 local acceptBtn = Instance.new("TextButton")
-                acceptBtn.Size = UDim2.new(0.5, -15, 0, 26)
-                acceptBtn.Position = UDim2.new(0, 10, 1, -34)
+                acceptBtn.Size = UDim2.new(0.5, -15, 0, 28)
+                acceptBtn.Position = UDim2.new(0, 10, 1, -36)
                 acceptBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
                 acceptBtn.Text = "Aceptar"
                 acceptBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -869,8 +851,8 @@ function Library:CreateWindow(config)
                 acCorner.Parent = acceptBtn
 
                 local cancelBtn = Instance.new("TextButton")
-                cancelBtn.Size = UDim2.new(0.5, -15, 0, 26)
-                cancelBtn.Position = UDim2.new(0.5, 5, 1, -34)
+                cancelBtn.Size = UDim2.new(0.5, -15, 0, 28)
+                cancelBtn.Position = UDim2.new(0.5, 5, 1, -36)
                 cancelBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
                 cancelBtn.Text = "Cancelar"
                 cancelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
