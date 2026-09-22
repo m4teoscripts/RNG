@@ -62,6 +62,7 @@ end
 
 function Library:CreateWindow(config)
     local titleText = config.Title or "RNG Hub"
+    local subtitleText = config.Subtitle or ""
     local useKey = config.KeySystem or false
     local correctKey = config.Key or "1234"
     local keyLink = config.Link or "https://discord.gg/tuenlace"
@@ -247,8 +248,8 @@ function Library:CreateWindow(config)
     end
 
     local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, -55, 0, 30)
-    Title.Position = UDim2.new(0, 10, 0, 0)
+    Title.Size = UDim2.new(1, -40, 0, subtitleText ~= "" and 18 or 24)
+    Title.Position = UDim2.new(0, 10, 0, 4)
     Title.BackgroundTransparency = 1
     Title.Text = titleText
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -256,6 +257,19 @@ function Library:CreateWindow(config)
     Title.Font = Enum.Font.SourceSansBold
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.Parent = MainFrame
+
+    if subtitleText ~= "" then
+        local SubtitleLbl = Instance.new("TextLabel")
+        SubtitleLbl.Size = UDim2.new(1, -40, 0, 14)
+        SubtitleLbl.Position = UDim2.new(0, 10, 0, 20)
+        SubtitleLbl.BackgroundTransparency = 1
+        SubtitleLbl.Text = subtitleText
+        SubtitleLbl.TextColor3 = Color3.fromRGB(160, 160, 160)
+        SubtitleLbl.TextSize = 10
+        SubtitleLbl.Font = Enum.Font.SourceSans
+        SubtitleLbl.TextXAlignment = Enum.TextXAlignment.Left
+        SubtitleLbl.Parent = MainFrame
+    end
 
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 22, 0, 22)
@@ -270,14 +284,15 @@ function Library:CreateWindow(config)
     CornerClose.CornerRadius = UDim.new(0, 4)
     CornerClose.Parent = CloseButton
 
+    local tabbarY = subtitleText ~= "" and 38 or 30
     -- Barra de Pestañas con Scroll Horizontal Habilitado
     local TabBar = Instance.new("ScrollingFrame")
     TabBar.Size = UDim2.new(1, -16, 0, 30)
-    TabBar.Position = UDim2.new(0, 8, 0, 35)
+    TabBar.Position = UDim2.new(0, 8, 0, tabbarY)
     TabBar.BackgroundTransparency = 1
     TabBar.BorderSizePixel = 0
     TabBar.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabBar.ScrollBarThickness = 3 -- Permite scroll horizontal en las pestañas
+    TabBar.ScrollBarThickness = 3
     TabBar.Parent = MainFrame
 
     local TabListLayout = Instance.new("UIListLayout")
@@ -290,9 +305,10 @@ function Library:CreateWindow(config)
         TabBar.CanvasSize = UDim2.new(0, TabListLayout.AbsoluteContentSize.X + 10, 0, 0)
     end)
 
+    local pagesY = tabbarY + 35
     local PagesContainer = Instance.new("Frame")
-    PagesContainer.Size = UDim2.new(1, -16, 1, -75)
-    PagesContainer.Position = UDim2.new(0, 8, 0, 70)
+    PagesContainer.Size = UDim2.new(1, -16, 1, -(pagesY + 6))
+    PagesContainer.Position = UDim2.new(0, 8, 0, pagesY)
     PagesContainer.BackgroundTransparency = 1
     PagesContainer.Parent = MainFrame
 
@@ -330,7 +346,6 @@ function Library:CreateWindow(config)
         CornerTab.CornerRadius = UDim.new(0, 4)
         CornerTab.Parent = TabButton
 
-        -- Scroll dentro de las pestañas (Vertical)
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Size = UDim2.new(1, 0, 1, 0)
         TabContent.BackgroundTransparency = 1
@@ -761,16 +776,43 @@ function Library:CreateWindow(config)
                 ppCorner.CornerRadius = UDim.new(0, 4)
                 ppCorner.Parent = previewPicker
 
+                -- Área con degradado de espectro de colores (Arcoíris horizontal + Sombra vertical)
                 local colorArea = Instance.new("Frame")
                 colorArea.Size = UDim2.new(0, 215, 0, 75)
                 colorArea.Position = UDim2.new(0, 10, 0, 36)
-                colorArea.BackgroundColor3 = color
+                colorArea.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
                 colorArea.BorderSizePixel = 0
                 colorArea.Parent = pickerGui
 
                 local caCorner = Instance.new("UICorner")
                 caCorner.CornerRadius = UDim.new(0, 4)
                 caCorner.Parent = colorArea
+
+                local rainbowGrad = Instance.new("UIGradient")
+                rainbowGrad.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)),
+                    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                    ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+                    ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 255, 255)),
+                    ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+                    ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+                    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))
+                })
+                rainbowGrad.Parent = colorArea
+
+                local blackOverlay = Instance.new("Frame")
+                blackOverlay.Size = UDim2.new(1, 0, 1, 0)
+                blackOverlay.BackgroundTransparency = 1
+                blackOverlay.BorderSizePixel = 0
+                blackOverlay.Parent = colorArea
+
+                local blackGrad = Instance.new("UIGradient")
+                blackGrad.Transparency = NumberSequence.new({
+                    NumberSequenceKeypoint.new(0, 1),
+                    NumberSequenceKeypoint.new(1, 0)
+                })
+                blackGrad.Rotation = 90
+                blackGrad.Parent = blackOverlay
 
                 local circle = Instance.new("Frame")
                 circle.Size = UDim2.new(0, 14, 0, 14)
@@ -808,7 +850,6 @@ function Library:CreateWindow(config)
                         
                         circle.Position = UDim2.new(relX, 0, relY, 0)
                         tempColor = Color3.fromHSV(relX, 1, 1 - relY)
-                        colorArea.BackgroundColor3 = tempColor
                         previewPicker.BackgroundColor3 = tempColor
                     end
                 end)
